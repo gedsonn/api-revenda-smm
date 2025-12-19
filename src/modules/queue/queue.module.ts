@@ -8,9 +8,9 @@ import { SalesQueueService } from './sales.service';
   imports: [
     BullModule.forRoot({
       redis: {
-        username: 'red-cuejjjqj1k6c73cjt1tg',
-        password: 'mn39wYSMKGcHGFhDoKvCpmEZLJXTU7dZ',
-        host: 'oregon-keyvalue.render.com',
+        username: '',
+        password: '',
+        host: '',
         port: 6379,
         tls: {
           rejectUnauthorized: false,
