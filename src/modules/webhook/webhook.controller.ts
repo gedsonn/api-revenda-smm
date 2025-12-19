@@ -9,30 +9,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { WebhookService } from './webhook.service';
-
-export interface PixWebhookPayload {
-  pix: PixItem[];
-}
-
-export interface PixItem {
-  endToEndId: string;
-  txid: string;
-  chave: string;
-  valor: string; // string porque vem formatado, ex: "0.10"
-  horario: string; // ISO date string
-  infoPagador: string;
-  gnExtras: GnExtras;
-}
-
-export interface GnExtras {
-  pagador: Pagador;
-}
-
-export interface Pagador {
-  nome: string;
-  cpf: string;
-  codigoBanco: string;
-}
+import type { PixWebhookPayload } from '@/types/webhook.types';
 
 @Controller('webhook')
 export class WebhookController {
@@ -46,6 +23,10 @@ export class WebhookController {
     if (queryParams.hmac !== process.env.EFI_WEBHOOK_SECRET) {
       throw new UnauthorizedException({ message: 'body inválido' });
     }
+
+    this.webhookService.processWebhook(body).catch((err) => {
+      this.logger.error(err);
+    });
 
     return 'Olá mundo';
   }

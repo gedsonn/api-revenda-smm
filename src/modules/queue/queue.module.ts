@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { SalesProcessor } from './processor/sales.processor';
-import { PixQueueService } from './pro.service';
+import { SalesQueueService } from './sales.service';
 
 @Global()
 @Module({
@@ -21,7 +21,7 @@ import { PixQueueService } from './pro.service';
       name: 'processSales',
     }),
   ],
-  providers: [SalesProcessor, PixQueueService],
-  exports: [PixQueueService],
+  providers: [SalesProcessor, SalesQueueService],
+  exports: [SalesQueueService],
 })
 export class QueueModule {}

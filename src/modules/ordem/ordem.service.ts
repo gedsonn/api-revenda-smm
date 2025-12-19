@@ -10,7 +10,7 @@ import { ServiceRepo } from '../service/repository/service.repo';
 import { RevisionSDK } from '@/shared/revision';
 import { Service } from '../service/entity/service.entity';
 import { OrdemRepo } from './repository/ordem.repository';
-import { PixQueueService } from '../queue/pro.service';
+import { PixQueueService } from '../queue/sales.service';
 
 @Injectable()
 export class OrdemService {

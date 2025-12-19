@@ -7,10 +7,6 @@ export class SalesProcessor {
 
   @Process('sales')
   handleCreatePix(job: Job) {
-    const { userId, amount, pixKey } = job.data;
-
-    console.log(
-      `Processando Pix para usuário ${userId} valor ${amount} pixKey ${pixKey}`,
-    );
+    console.log(job.data);
   }
 }
