@@ -1,0 +1,192 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String @id
+  username String
+
+  apis Api[]
+
+  wallet Wallet?
+
+  orders Ordem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model System {
+  id Int @id @default(1)
+
+  taxa    Int @default(0)
+  lastupdatedService DateTime
+
+  wallet SyWalet?
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system")
+}
+
+model SyWalet {
+  id String @id @default(uuid())
+
+  balance Int @default(0)
+  locked  Int @default(0)
+
+
+  history SyWalletHistory[]
+
+  systemId Int @unique
+  system   System @relation(fields: [systemId], references: [id])
+}
+
+model SyWalletHistory {
+  id String @id @default(uuid())
+
+  before Int
+  after  Int
+  amount Int
+
+  action WalletAction
+  reference String?
+
+  systemWalletId String
+  systemWallet   SyWalet @relation(fields: [systemWalletId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("system_wallet_history")
+}
+
+
+model Wallet {
+  id String @id @default(uuid())
+
+  balance       Int @default(0) // centavos
+  locked Int @default(0) // centavos
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  history HistoricWallet[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("wallets")
+}
+
+model HistoricWallet {
+  id String @id @default(uuid())
+
+  before Int
+  after  Int
+
+  action WalletAction
+
+  reference String? // orderId, pixId, etc.
+
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("wallet_history")
+}
+
+
+
+model Service {
+  id       Int  @id  //id do serviço
+  name     String 
+  price    Int     @default(0)
+  min      Int     @default(1)
+  max      Int     @default(1)
+  category String
+  type     String
+  orders   Ordem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("services")
+}
+
+model Ordem {
+  id String @id @default(uuid())
+
+  status OrdemStatus @default(AWAIT_PAYMENT)
+
+  extra Json //{ordem: string } id da ordem no revision
+
+  compradorId String //id do usuario do discord que vai comprar o serviço
+  comprador   User   @relation(fields: [compradorId], references: [id])
+
+
+  serviceId Int
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  txid String @unique
+  pix Json? //salva qr code
+
+  keyId String
+  key   Api    @relation(fields: [keyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model Api {
+  id  String @id @default(uuid())
+  key String @unique
+
+  ownerId String
+  user    User   @relation(fields: [ownerId], references: [id])
+
+  orders Ordem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("apis")
+}
+
+enum OrdemStatus {
+  PENDING
+  AWAIT_PAYMENT
+  PROCESSING
+  DONE
+  FAILED
+  CANCELED
+  REFUNDED
+}
+
+enum WalletAction {
+  DEPOSIT
+  WITHDRAW
+  ORDER
+  REFUND
+  SALES
+  SPLIT
+}
